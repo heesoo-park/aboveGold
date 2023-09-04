@@ -1,0 +1,46 @@
+import java.io.*;
+import java.util.Stack;
+import java.util.StringTokenizer;
+
+public class Main { 
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer st;
+
+        int N = Integer.parseInt(br.readLine());
+
+        int[] A = new int[N];
+        Stack<Integer> stack = new Stack<>();
+
+        st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < N; i++) {
+            A[i] = Integer.parseInt(st.nextToken());
+        }
+
+        stack.push(0);
+        for (int i = 1; i < N; i++) {
+            while(!stack.empty() && A[stack.peek()] < A[i]) {
+                A[stack.pop()] = A[i];
+            }
+
+            stack.push(i);
+        }
+
+        while(!stack.empty()) {
+            A[stack.pop()] = -1;
+        }
+
+        for (int n : A) {
+            bw.write(n + " ");
+        }
+        br.close();
+        bw.flush();
+        bw.close();
+    }
+}
+
+// 스택에 다 넣었다가 빼면서 하면 될 줄 알았는데 가까우면서 큰 수를 정하는게 안 되더라...
+// 수열이라고 써있었지만 만들 생각은 안 했다
+// 스택이라고 해서 역방향만 생각했는데 정방향가다가 역방향돌기는 생각 못했다
+// 이런 유형은 좀 더 풀어봐야지 스택에 대한 활용이 단단해질거같다
