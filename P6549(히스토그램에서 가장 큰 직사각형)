@@ -1,0 +1,66 @@
+import java.io.*;
+import java.util.Stack;
+import java.util.StringTokenizer;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer st;
+
+        long maxArea = 0;
+        while (true) {
+            st = new StringTokenizer(br.readLine());
+
+            int n = Integer.parseInt(st.nextToken());
+            if (n == 0) break;
+
+            long[] histogram = new long[n];
+            for (int i = 0; i < n; i++) {
+                histogram[i] = Long.parseLong(st.nextToken());
+            }
+
+            Stack<Integer> stack = new Stack<>();
+            for (int i = 0; i < n; i++) {
+                while (!stack.empty() && histogram[stack.peek()] >= histogram[i]) {
+                    long height = histogram[stack.pop()];
+
+                    long width;
+                    if (stack.empty()) width = i;
+                    else width = i - 1 - stack.peek();
+
+                    maxArea = Math.max(maxArea, height * width);
+                }
+
+                stack.push(i);
+            }
+
+            while (!stack.empty()) {
+                long height = histogram[stack.pop()];
+
+                long width;
+                if (stack.empty()) width = n;
+                else width = n - 1 - stack.peek();
+
+                maxArea = Math.max(maxArea, height * width);
+            }
+            bw.write(maxArea + "\n");
+            maxArea = 0;
+        }
+
+        br.close();
+        bw.flush();
+        bw.close();
+    }
+}
+
+// 당연하게도 혼자 힘으로 풀지는 못했다
+// 스택이겠거니 까지는 갔다
+// 하지만 현재 정도와 이전 정보 두 가지를 가지고 어떻게 다양한 면적을 구할 수 있을지는 감이 잡히지 않았다
+// 현재 정보의 값이 이전 정보의 값보다 작으면 현재 정보로 만들 수 있는 직사각형의 최대 높이는 현재 정보의 값이다 는 이해가 되었다
+// 넓이가 아직 좀 이해가 안 되는 것 같다
+// 설명하라고 하면 높이까지는 설명할 수 있을 거 같은데 넓이 구하는 건 좀 어려울 듯
+// 그리고 스택에 남아 있는 친구들까지 다 계산하는 거 놓치기 쉬울 거 같다
+// 골드 이상의 스택문제들은 비슷한 틀을 가지고 있고 그 안에 조건들을 어떻게 구현해내는가가 포인트인듯 싶다
+// 유명한 유형의 문제라던데 나는 처음 풀어본다...ㅎ
+// 스택말고도 분할정복, 세그먼트 트리로도 풀 수 있다는데 이것도 한번 알아봐야겠다
