@@ -1,0 +1,49 @@
+import java.io.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.StringTokenizer;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        int N = Integer.parseInt(st.nextToken());
+        int L = Integer.parseInt(st.nextToken());
+
+        Deque<int[]> deque = new ArrayDeque<>();
+        st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < N; i++) {
+            int data = Integer.parseInt(st.nextToken());
+            while (!deque.isEmpty() && deque.peekLast()[0] > data) {
+                deque.pollLast();
+            }
+
+            deque.add(new int[] {data, i});
+            if (deque.peek()[1] < i - (L - 1)) {
+                deque.poll();
+            }
+
+            bw.write(deque.peek()[0] + " ");
+        }
+
+        br.close();
+        bw.flush();
+        bw.close();
+    }
+}
+
+// 분명 문제는 간단한 거 같고 조건도 까다롭지 않은데 왜 접근은 쉽지 않을까?
+// deque 문제라는 걸 알아서 그렇게 접근하려했지만 도대체 어디서 deque가 쓰이는지 감을 잡지 못함
+// 양옆으로 뭔가 삽입/삭제가 필요한 건가 싶었음
+// 찾아보니 슬라이딩 윈도우 알고리즘을 사용하는 문제로 풀이된 걸 봤다
+// 슬라이딩 윈도우 알고리즘은 뭔가 이론적으로는 아는데 구현은 못했던 부분이었다
+// 그리고 여기서도 deque에 일반 자료형을 넣는 것이 아니라 배열을 집어넣었다
+// 플레문제들이 보통 그런 걸려나?
+// 다음부터는 이 부분을 생각하고 들어가야겠다
+// 그리고 알고리즘을 제외하고 구조를 보면 이전에 풀었던 골드, 플레 스택문제와 굉장히 유사했다
+// 크기 보고 빼고 넣고 원하는 값은 따로 저장해두고
+// 유형은 통한다 이건가...
+// 이건 우선순위 큐로도 풀수 있다고 하는데 나중에 나오면 또 알아가야겠다
