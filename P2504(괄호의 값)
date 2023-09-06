@@ -1,0 +1,57 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Stack;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        Stack<Character> stack = new Stack<>();
+
+        String str = br.readLine();
+        int result = 0;
+        int value = 1;
+
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c == '(') {
+                stack.push(c);
+                value *= 2;
+            } else if (c == '[') {
+                stack.push(c);
+                value *= 3;
+            } else if (c == ')') {
+                if (stack.empty() || stack.peek() != '(') {
+                    result = 0;
+                    break;
+                } else if (str.charAt(i - 1) == '(') {
+                    result += value;
+                }
+                stack.pop();
+                value /= 2;
+            } else if (c == ']') {
+                if (stack.empty() || stack.peek() != '[') {
+                    result = 0;
+                    break;
+                } else if (str.charAt(i - 1) == '[') {
+                    result += value;
+                }
+                stack.pop();
+                value /= 3;
+            }
+        }
+
+        if (!stack.empty()) System.out.println(0);
+        else System.out.println(result);
+    }
+}
+
+// 처음에는 두개의 스택으로 하나는 괄호, 하나는 숫자만 넣어서 처리하려고 했지만 괄호 처리 중에 숫자 처리가 되지 않아 포기
+// 괄호의 모음이 올바른지 확인을 먼저하고 이후 괄호의 값을 구하는 식으로 코드를 짰지만 두번의 제출 모두 emptystack이 떠서 제거하고 괄호의 값 구하면서 확인하도록 변경
+// 스택이 필요한 이유를 알겠지만 어떻게 구현해야할지 느낌이 안 왔다
+// 한 가지 방식만 계속 잡다가 더이상 진전이 없어서 다른 사람들의 풀이를 봤는데 분배법칙을 코드로 표현하여 해결하더라
+// 이게 되네
+// 처음에는 이해가 잘 안 됐지만 보다보니까 이해가 좀 되더라
+// 스택만 주구장창 쳐다보는게 아니라 기존 문자열도 체크해야한다는 걸 알아차림
+// 그리고 예외처리가 생각보다 있었다는 거?도 체크할 부분인듯
