@@ -1,0 +1,89 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+
+public class Main {
+    static int N, M;
+    static int[][] box = new int[1001][1001];
+    static int[][] check = new int[1001][1001];
+    static boolean[][] visited = new boolean[1001][1001];
+    static List<int[]> point = new ArrayList<>();
+    static int[] dy = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        M = Integer.parseInt(st.nextToken());
+        N = Integer.parseInt(st.nextToken());
+
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < M; j++) {
+                box[i][j] = Integer.parseInt(st.nextToken());
+                if (box[i][j] == 1) point.add(new int[]{i, j, 0});
+            }
+        }
+
+        solve();
+
+        int minTime = Integer.MIN_VALUE;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (check[i][j] != 0 && minTime < check[i][j]) minTime = check[i][j];
+
+                if (!visited[i][j] && box[i][j] != -1) {
+                    System.out.println(-1);
+                    return;
+                }
+            }
+        }
+
+        if (minTime != Integer.MIN_VALUE) System.out.println(minTime);
+        else System.out.println(0);
+    }
+
+    static void solve() {
+        Queue<int[]> q = new LinkedList<>();
+        for (int i = 0; i < point.size(); i++) {
+            int[] p = point.get(i);
+            q.add(p);
+            visited[p[0]][p[1]] = true;
+        }
+
+        while (!q.isEmpty()) {
+            int[] cur = q.poll();
+            int cur_r = cur[0];
+            int cur_c = cur[1];
+            int cur_t = cur[2];
+
+            for (int i = 0; i < 4; i++) {
+                int new_r = cur_r + dy[i];
+                int new_c = cur_c + dx[i];
+
+                if (new_r < 0 || new_r >= N || new_c < 0 || new_c >= M) continue;
+
+                if (box[new_r][new_c] == 0) {
+                    if (visited[new_r][new_c]) {
+                        check[new_r][new_c] = Math.min(check[new_r][new_c], cur_t + 1);
+                    } else {
+                        visited[new_r][new_c] = true;
+                        check[new_r][new_c] = cur_t + 1;
+                        q.add(new int[]{new_r, new_c, cur_t + 1});
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 정말 오랜만에 혼자힘으로 풀어낸 골드문제인듯
+// bfs 실버문제를 반복으로 풀다보니 그래도 갈피를 잡고 진행했다
+// bfs는 최소 시간구할 때 좋은 듯 하다
+// 이 문제에서는 평소와 같이 2중 for문으로 시작점을 잡지 않고 따로 모아놨다
+// 그리고 사실 bfs를 하면서 시간이 꼬이지 않을까 싶었는데 안 꼬였다
+// 또 이전이었으면 int[]은 생각하지 못했을텐데 떠오르더라
+// 참 좋다...
