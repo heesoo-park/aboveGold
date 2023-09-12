@@ -1,0 +1,102 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+
+public class Main {
+    static int R, C;
+    static char[][] maze = new char[1001][1001];
+    static Queue<Pos> J_q = new LinkedList<>();
+    static Queue<Pos> F_q = new LinkedList<>();
+    static boolean[][] J_visited = new boolean[1001][1001];
+    static boolean[][] F_visited = new boolean[1001][1001];
+    static int[] dy = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        R = Integer.parseInt(st.nextToken());
+        C = Integer.parseInt(st.nextToken());
+
+        for (int i = 0; i < R; i++) {
+            String str = br.readLine();
+            for (int j = 0; j < C; j++) {
+                maze[i][j] = str.charAt(j);
+                if (maze[i][j] == 'J') {
+                    J_q.add(new Pos(i, j));
+                    J_visited[i][j] = true;
+                } else if (maze[i][j] == 'F') {
+                    F_q.add(new Pos(i, j));
+                    F_visited[i][j] = true;
+                }
+            }
+        }
+
+        solve();
+        System.out.println("IMPOSSIBLE");
+    }
+
+    static void solve() {
+        int time = 0;
+
+        while (!J_q.isEmpty()) {
+            int F_size = F_q.size();
+            int J_size = J_q.size();
+            for (int i = 0; i < F_size; i++) {
+                Pos cur_F = F_q.poll();
+
+                for (int j = 0; j < 4; j++) {
+                    int new_F_r = cur_F.y + dy[j];
+                    int new_F_c = cur_F.x + dx[j];
+
+                    if (new_F_r < 0 || new_F_r >= R || new_F_c < 0 || new_F_c >= C) continue;
+                    if (maze[new_F_r][new_F_c] == '#' || F_visited[new_F_r][new_F_c]) continue;
+
+                    F_visited[new_F_r][new_F_c] = true;
+                    maze[new_F_r][new_F_c] = 'F';
+                    F_q.add(new Pos(new_F_r, new_F_c));
+                }
+            }
+
+            for (int i = 0; i < J_size; i++) {
+                Pos cur_J = J_q.poll();
+
+                for (int j = 0; j < 4; j++) {
+                    int new_J_r = cur_J.y + dy[j];
+                    int new_J_c = cur_J.x + dx[j];
+
+                    if (new_J_r < 0 || new_J_r >= R || new_J_c < 0 || new_J_c >= C) {
+                        time++;
+                        System.out.println(time);
+                        System.exit(0);
+                    }
+
+                    if (maze[new_J_r][new_J_c] != '.' || J_visited[new_J_r][new_J_c]) continue;
+                    J_visited[new_J_r][new_J_c] = true;
+                    J_q.add(new Pos(new_J_r, new_J_c));
+                }
+            }
+
+            time++;
+        }
+    }
+
+    static class Pos {
+        int x, y;
+
+        public Pos(int y, int x) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+}
+
+// 전에 풀었던 토마토 문제랑 비슷하게 하려했는데 실패
+// 이번에는 큐 2개를 가지고 하는 방식이었다
+// 문제풀다가 이전에 int[] 쓰는게 생각나서 좋아했었는데 생각해보니 class만드는 걸 더 주로해야하지 않나라는 생각이 들더라
+// 순서도 중요한 문제였다
+// 먼저 불을 확산시키고 그 이후에 지훈이가 불 없는 곳으로 움직여야했다
+// 벽에만 붙으면 나간다는 것도 쉽게 표현한 거였다
