@@ -1,0 +1,106 @@
+import java.io.*;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Main {
+    static int N;
+    static char[][] painting = new char[101][101];
+    static boolean[][] visited1 = new boolean[101][101];
+    static boolean[][] visited2 = new boolean[101][101];
+    static int[] dy = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+        N = Integer.parseInt(br.readLine());
+        for (int i = 0; i < N; i++) {
+            String str = br.readLine();
+            for (int j = 0; j < N; j++) {
+                painting[i][j] = str.charAt(j);
+            }
+        }
+
+        int cnt1 = 0, cnt2 = 0;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (!visited1[i][j]) {
+                    solve1(i, j, painting[i][j]);
+                    cnt1++;
+                }
+
+                if (!visited2[i][j]) {
+                    solve2(i, j, painting[i][j]);
+                    cnt2++;
+                }
+            }
+        }
+        bw.write(cnt1 + " ");
+        bw.write(cnt2 + "\n");
+
+        br.close();
+        bw.flush();
+        bw.close();
+    }
+
+    static void solve1(int r, int c, char color) {
+        Queue<int[]> q = new LinkedList<>();
+        q.add(new int[]{r, c});
+        visited1[r][c] = true;
+
+        while (!q.isEmpty()) {
+            int[] cur = q.poll();
+            int cur_r = cur[0];
+            int cur_c = cur[1];
+
+            for (int i = 0; i < 4; i++) {
+                int new_r = cur_r + dy[i];
+                int new_c = cur_c + dx[i];
+
+                if (new_r < 0 || new_r >= N || new_c < 0 || new_c >= N) continue;
+                if (visited1[new_r][new_c]) continue;
+
+                if (painting[new_r][new_c] == color) {
+                    visited1[new_r][new_c] = true;
+                    q.add(new int[]{new_r, new_c});
+                }
+            }
+        }
+    }
+
+    static void solve2(int r, int c, char color) {
+        Queue<int[]> q = new LinkedList<>();
+        q.add(new int[]{r, c});
+        visited2[r][c] = true;
+
+        while (!q.isEmpty()) {
+            int[] cur = q.poll();
+            int cur_r = cur[0];
+            int cur_c = cur[1];
+
+            for (int i = 0; i < 4; i++) {
+                int new_r = cur_r + dy[i];
+                int new_c = cur_c + dx[i];
+
+                if (new_r < 0 || new_r >= N || new_c < 0 || new_c >= N) continue;
+                if (visited2[new_r][new_c]) continue;
+
+                if (color == 'R' || color == 'G') {
+                    if (painting[new_r][new_c] == 'R' || painting[new_r][new_c] == 'G') {
+                        visited2[new_r][new_c] = true;
+                        q.add(new int[]{new_r, new_c});
+                    }
+                } else {
+                    if (painting[new_r][new_c] == 'B') {
+                        visited2[new_r][new_c] = true;
+                        q.add(new int[]{new_r, new_c});
+                    }
+                }
+            }
+        }
+    }
+}
+
+// DFS를 어떻게 하면 한번에 할 수 있을까 생각하다가 그냥 두 개로 나눠서 진행
+// 문제 자체는 구역구하는 것과 다르지 않아서 금방 접근하고 해결
