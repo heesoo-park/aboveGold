@@ -1,0 +1,90 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+
+public class Main {
+    static int M, N, H;
+    static int[][][] box = new int[101][101][101];
+    static int[][][] check = new int[101][101][101];
+    static boolean[][][] visited = new boolean[101][101][101];
+    static List<int[]> point = new ArrayList<>();
+    static int[] dy = {0, 1, 0, -1, 0, 0};
+    static int[] dx = {1, 0, -1, 0, 0, 0};
+    static int[] dz = {0, 0, 0, 0, 1, -1};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        M = Integer.parseInt(st.nextToken());
+        N = Integer.parseInt(st.nextToken());
+        H = Integer.parseInt(st.nextToken());
+
+        for (int i = 0; i < H; i++) {
+            for (int j = 0; j < N; j++) {
+                st = new StringTokenizer(br.readLine());
+                for (int k = 0; k < M; k++) {
+                    box[i][j][k] = Integer.parseInt(st.nextToken());
+                    if (box[i][j][k] == 1) point.add(new int[]{i, j, k});
+                }
+            }
+        }
+
+        solve();
+
+        int minTime = Integer.MIN_VALUE;
+        for (int i = 0; i < H; i++) {
+            for (int j = 0; j < N; j++) {
+                for (int k = 0; k < M; k++) {
+                    if (check[i][j][k] != 0 && minTime < check[i][j][k]) minTime = check[i][j][k];
+
+                    if (!visited[i][j][k] && box[i][j][k] != -1) {
+                        System.out.println(-1);
+                        return;
+                    }
+                }
+            }
+        }
+
+        if (minTime != Integer.MIN_VALUE) System.out.println(minTime);
+        else System.out.println(0);
+    }
+
+    static void solve() {
+        Queue<int[]> q = new LinkedList<>();
+        for (int[] i : point) {
+            q.add(i);
+            visited[i[0]][i[1]][i[2]] = true;
+        }
+
+        while (!q.isEmpty()) {
+            int[] cur = q.poll();
+            int cur_d = cur[0];
+            int cur_r = cur[1];
+            int cur_c = cur[2];
+
+            for (int i = 0; i < 6; i++) {
+                int new_d = cur_d + dz[i];
+                int new_r = cur_r + dy[i];
+                int new_c = cur_c + dx[i];
+
+                if (new_d < 0 || new_d >= H || new_r < 0 || new_r >= N || new_c < 0 || new_c >= M) continue;
+
+                if (box[new_d][new_r][new_c] == 0) {
+                    if (visited[new_d][new_r][new_c]) {
+                        check[new_d][new_r][new_c] = Math.min( check[new_d][new_r][new_c], check[cur_d][cur_r][cur_c] + 1);
+                    } else {
+                        visited[new_d][new_r][new_c] = true;
+                        check[new_d][new_r][new_c] = check[cur_d][cur_r][cur_c] + 1;
+                        q.add(new int[]{new_d, new_r, new_c});
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 이전에 풀었던 토마토 문제의 3차원 버전
+// 그래서 그런지 쉽게 접근하고 풀어냈다
