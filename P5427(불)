@@ -1,0 +1,114 @@
+import java.io.*;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main {
+    static int T, w, h;
+    static char[][] building;
+    static Queue<int[]> fireQ;
+    static Queue<int[]> sangeunQ;
+    static boolean[][] fireVisited;
+    static boolean[][] sangeunVisted;
+    static int[] dy = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer st;
+
+        T = Integer.parseInt(br.readLine());
+        while (T-- > 0) {
+            st = new StringTokenizer(br.readLine());
+            w = Integer.parseInt(st.nextToken());
+            h = Integer.parseInt(st.nextToken());
+
+            fireQ = new LinkedList<>();
+            sangeunQ = new LinkedList<>();
+            building = new char[h][w];
+            fireVisited = new boolean[h][w];
+            sangeunVisted = new boolean[h][w];
+
+            for (int i = 0; i < h; i++) {
+                String str = br.readLine();
+                for (int j = 0; j < w; j++) {
+                    building[i][j] = str.charAt(j);
+
+                    if (building[i][j] == '*') {
+                        fireQ.add(new int[]{i, j});
+                        fireVisited[i][j] = true;
+                    }
+
+                    if (building[i][j] == '@') {
+                        sangeunQ.add(new int[]{i, j});
+                        sangeunVisted[i][j] = true;
+                    }
+                }
+            }
+
+            int result = solve();
+            bw.write(result == -1 ? "IMPOSSIBLE\n" : result + "\n");
+        }
+
+        br.close();
+        bw.flush();
+        bw.close();
+    }
+
+    static int solve() {
+        int time = 0;
+
+        while (!sangeunQ.isEmpty()) {
+            int s_size = sangeunQ.size();
+            int f_size = fireQ.size();
+
+            for (int i = 0; i < f_size; i++) {
+                int[] cur_f = fireQ.poll();
+                int cur_f_r = cur_f[0];
+                int cur_f_c = cur_f[1];
+
+                for (int j = 0; j < 4; j++) {
+                    int new_f_r = cur_f_r + dy[j];
+                    int new_f_c = cur_f_c + dx[j];
+
+                    if (new_f_r < 0 || new_f_r >= h || new_f_c < 0 || new_f_c >= w) continue;
+                    if (building[new_f_r][new_f_c] == '#' || fireVisited[new_f_r][new_f_c]) continue;
+
+                    fireVisited[new_f_r][new_f_c] = true;
+                    building[new_f_r][new_f_c] = '*';
+                    fireQ.add(new int[]{new_f_r, new_f_c});
+                }
+            }
+
+            for (int i = 0; i < s_size; i++) {
+                int[] cur_s = sangeunQ.poll();
+                int cur_s_r = cur_s[0];
+                int cur_s_c = cur_s[1];
+
+                for (int j = 0; j < 4; j++) {
+                    int new_s_r = cur_s_r + dy[j];
+                    int new_s_c = cur_s_c + dx[j];
+
+                    if (new_s_r < 0 || new_s_r >= h || new_s_c < 0 || new_s_c >= w) {
+                        time++;
+                        return time;
+                    }
+                    if (building[new_s_r][new_s_c] != '.' || sangeunVisted[new_s_r][new_s_c]) continue;
+
+                    sangeunVisted[new_s_r][new_s_c] = true;
+                    sangeunQ.add(new int[]{new_s_r, new_s_c});
+                }
+            }
+
+            time++;
+        }
+
+        return -1;
+    }
+}
+
+// 저번에 풀었던 미로 탈출관련 문제 덕분에 쉽게 접근할 수 있었다
+// 역시 비슷한 유형이면 떠오르기는 한다
+// 두개의 큐와 배열로 먼저 불이 움직여서 자리를 차지하고 그 뒤에 사람이 움직이는 식으로 하면 딱 맞다
+// class 안 쓰고 int[] 쓰기는 했지만 뭐 괜찮치 않을까?
