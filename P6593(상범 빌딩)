@@ -1,0 +1,115 @@
+import java.io.*;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main {
+    static int L, R, C;
+    static char[][][] building = new char[31][31][31];
+    static int[][][] time = new int[31][31][31];
+    static boolean[][][] visited = new boolean[31][31][31];
+    static int[] dy = {0, 1, 0, -1, 0, 0};
+    static int[] dx = {1, 0, -1, 0, 0, 0};
+    static int[] dz = {0, 0, 0, 0, 1, -1};
+    static Point start, end;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        L = Integer.parseInt(st.nextToken());
+        R = Integer.parseInt(st.nextToken());
+        C = Integer.parseInt(st.nextToken());
+        while (L != 0) {
+            clear();
+
+            for (int i = 0; i < L; i++) {
+                for (int j = 0; j < R; j++) {
+                    String line = br.readLine();
+                    for (int k = 0; k < C; k++) {
+                        building[i][j][k] = line.charAt(k);
+
+                        if (building[i][j][k] == 'S') start = new Point(i, j, k);
+                        else if (building[i][j][k] == 'E') end = new Point(i, j, k);
+                    }
+                }
+                br.readLine();
+            }
+
+            solve();
+            int result = time[end.h][end.r][end.c];
+            if (result != 0) {
+                bw.write("Escaped in " + result + " minute(s).\n");
+            } else {
+                bw.write("Trapped!\n");
+            }
+
+            st = new StringTokenizer(br.readLine());
+            L = Integer.parseInt(st.nextToken());
+            R = Integer.parseInt(st.nextToken());
+            C = Integer.parseInt(st.nextToken());
+        }
+
+        br.close();
+        bw.flush();
+        bw.close();
+    }
+
+    static void clear() {
+        for (int i = 0; i < L; i++) {
+            for (int j = 0; j < R; j++) {
+                for (int k = 0; k < C; k++) {
+                    building[i][j][k] = ' ';
+                    time[i][j][k] = 0;
+                    visited[i][j][k] = false;
+                }
+            }
+        }
+    }
+
+    static void solve() {
+        Queue<Point> q = new LinkedList<>();
+        q.add(start);
+        visited[start.h][start.r][start.c] = true;
+
+        while (!q.isEmpty()) {
+            Point cur = q.poll();
+            int cur_h = cur.h;
+            int cur_r = cur.r;
+            int cur_c = cur.c;
+
+            for (int i = 0; i < 6; i++) {
+                int new_h = cur_h + dz[i];
+                int new_r = cur_r + dy[i];
+                int new_c = cur_c + dx[i];
+
+                if (new_h < 0 || new_h >= L || new_r < 0 || new_r >= R || new_c < 0 || new_c >= C) continue;
+                if (visited[new_h][new_r][new_c]) continue;
+
+                if (building[new_h][new_r][new_c] != '#') {
+                    time[new_h][new_r][new_c] = time[cur_h][cur_r][cur_c] + 1;
+                    visited[new_h][new_r][new_c] = true;
+                    q.add(new Point(new_h, new_r, new_c));
+                }
+            }
+        }
+    }
+
+    static class Point {
+        int h, r, c;
+
+        public Point(int h, int r, int c) {
+            this.h = h;
+            this.r = r;
+            this.c = c;
+        }
+    }
+}
+
+// 오랜만에 푸는 문제라 걱정했지만 익숙하게 풀어냈다
+// 미로찾기나 최단경로 찾기는 이제 1~3차원 모두 BFS로 접근하면 된다는게 느껴진다
+// 아직 많은 변형문제를 만나본 거는 아니지만 기본적인 틀이라면 문제가 없다고 느껴진다
+// 앞으로 난이도는 계속 올라갈텐데 괜찮으려나...
+// 이번에는 int[] 안 쓰고 class 썼다ㅎㅎ
