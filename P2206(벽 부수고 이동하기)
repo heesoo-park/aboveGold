@@ -1,0 +1,99 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main {
+    static int N, M;
+    static int[][] map = new int[1001][1001];
+    static boolean[][][] visited = new boolean[1001][1001][2];
+    static int[] dy = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+
+        for (int i = 0; i < N; i++) {
+            String str = br.readLine();
+            for (int j = 0; j < M; j++) {
+                map[i][j] = str.charAt(j) - '0';
+            }
+        }
+
+        solve();
+    }
+
+    static void solve() {
+        Queue<Point> q = new LinkedList<>();
+        q.add(new Point(0, 0, 1, false));
+        visited[0][0][0] = true;
+        visited[0][0][1] = true;
+
+        while (!q.isEmpty()) {
+            Point cur = q.poll();
+            int cur_r = cur.r;
+            int cur_c = cur.c;
+
+            if (cur_r == N - 1 && cur_c == M - 1) {
+                System.out.println(cur.cnt);
+                return;
+            }
+
+            for (int i = 0; i < 4; i++) {
+                int new_r = cur_r + dy[i];
+                int new_c = cur_c + dx[i];
+
+                if (new_r < 0 || new_r >= N || new_c < 0 || new_c >= M) continue;
+
+                if (map[new_r][new_c] == 0) {
+                    if (!cur.isUsed && !visited[new_r][new_c][0]) {
+                        q.add(new Point(new_r, new_c, cur.cnt + 1, false));
+                        visited[new_r][new_c][0] = true;
+                    } else if (cur.isUsed && !visited[new_r][new_c][1]) {
+                        q.add(new Point(new_r, new_c, cur.cnt + 1, true));
+                        visited[new_r][new_c][1] = true;
+                    }
+                } else if (map[new_r][new_c] == 1) {
+                    if (!cur.isUsed) {
+                        q.add(new Point(new_r, new_c, cur.cnt + 1, true));
+                        visited[new_r][new_c][1] = true;
+                    }
+                }
+            }
+        }
+
+        System.out.println(-1);
+    }
+
+    static class Point {
+        int r;
+        int c;
+        int cnt;
+        boolean isUsed;
+
+        public Point(int r, int c, int cnt, boolean isUsed) {
+            this.r = r;
+            this.c = c;
+            this.cnt = cnt;
+            this.isUsed = isUsed;
+        }
+    }
+}
+
+// 이 문제 보자마자 바로 아 삼성SDS 교육 마지막 테스트 문제가 생각났다
+// 그 때도 한 개 부셔서 가장 빠른 경로찾는 문제였는데 그 때는 지거와 모양이 조금 달랐지만 유형은 같았던 거 같다
+// 그래서 역시나 접근 불가
+// 기본 틀은 알지만 어디서 이 유형의 키가 있는지 감이 안 오더라
+// 이 문제의 차별성은 벽을 부순 상황과 안 부순 상황을 나눠서 배열에 저장하는 것이다
+// 그래서 visited 배열이 3차원이다
+// 그거 제외하고는 또 루틴이 비슷하다
+// class 안 만들고 그냥 하려고 했지만 머릿속에서 실타래가 더 꼬여서 class 사용했다
+// 한 번 벽 부수면 그 정보를 계속 유지해야한다.
+// 다음에 벽 부수기 문제 나오면 풀 수 있겠지...?
