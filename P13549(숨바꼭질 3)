@@ -1,0 +1,76 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static int N, K;
+    static int[] road = new int[100001];
+    static boolean[] visited = new boolean[100001];
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(st.nextToken());
+
+        System.out.println(solve());
+    }
+
+    static int solve() {
+        Queue<Integer> q = new LinkedList<>();
+        q.add(N);
+        visited[N] = true;
+
+        while (!q.isEmpty()) {
+            int cur = q.poll();
+
+            if (cur == K) {
+                return road[cur];
+            }
+
+            if (cur - 1 >= 0) {
+                if (visited[cur - 1]) {
+                    road[cur - 1] = Math.min(road[cur - 1], road[cur] + 1);
+                } else {
+                    road[cur - 1] = road[cur] + 1;
+                    visited[cur - 1] = true;
+                    q.add(cur - 1);
+                }
+            }
+
+            if (cur + 1 < 100001) {
+                if (visited[cur + 1]) {
+                    road[cur + 1] = Math.min(road[cur + 1], road[cur] + 1);
+                } else {
+                    road[cur + 1] = road[cur] + 1;
+                    visited[cur + 1] = true;
+                    q.add(cur + 1);
+                }
+            }
+
+            if (cur * 2 < 100001) {
+                if (visited[cur * 2]) {
+                    road[cur * 2] = Math.min(road[cur * 2], road[cur]);
+                } else {
+                    road[cur * 2] = road[cur];
+                    visited[cur * 2] = true;
+                    q.add(cur * 2);
+                }
+            }
+        }
+        return 0;
+    }
+}
+
+// 전에 풀었던 숨바꼭질... 왜 이리 시리스가 많니?
+// 아직도 몇 개 더 있던데
+// 그래서 쉽게 접근을 할 수는 있었다
+// 1차원 BFS는 이렇게 해야지라는게 좀 틀이 만들어졌기 때문에
+// 그런데 큐에 넣는 위치에 따라서 되기도 하고 안 되기도 하더라
+// 지금 짠 코드에서는 처음 방문한 칸에서만 큐에 넣으니까 되더라
+// ...왜지?
+// 둘다 하면 안 되는건 큐가 계속 늘어가기만 하니까 그런걸로 이해가 됐는데 얘는 왜지?
+// 이건 이유를 좀 알아봐야겠다
+// 풀었으니까 좋아!
+// 사실 그냥 숨바꼭질 문제랑 정해준 시간 차이밖에 없는 줄 알고 따라했는데 안 되더라...ㅎ
