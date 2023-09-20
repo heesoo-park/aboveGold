@@ -1,0 +1,70 @@
+import java.io.*;
+import java.util.StringTokenizer;
+
+public class Main {
+    static int cnt;
+    static int[] studentNum;
+    static boolean[] visited, done;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer st;
+
+        int T = Integer.parseInt(br.readLine());
+        while (T-- > 0) {
+            int n = Integer.parseInt(br.readLine());
+            studentNum = new int[n + 1];
+            visited = new boolean[n + 1];
+            done = new boolean[n + 1];
+            cnt = 0;
+
+            st = new StringTokenizer(br.readLine());
+            for (int i = 1; i <= n; i++) {
+                studentNum[i] = Integer.parseInt(st.nextToken());
+                if (studentNum[i] == i) {
+                    visited[i] = true;
+                    done[i] = true;
+                    cnt++;
+                }
+            }
+
+            for (int i = 1; i <= n; i++) {
+                if (!done[i]) solve(i);
+            }
+
+            bw.write(n - cnt + "\n");
+        }
+
+        br.close();
+        bw.flush();
+        bw.close();
+    }
+
+    static void solve(int start) {
+        visited[start] = true;
+        int next = studentNum[start];
+
+        if (!visited[next]) {
+            solve(next);
+        } else {
+            if (!done[next]) {
+                cnt++;
+                while (start != next) {
+                    cnt++;
+                    next = studentNum[next];
+                }
+            }
+        }
+        done[start] = true;
+    }
+}
+
+// 문제집 만드신 분이 카테고리를 BFS로 잡아놔서 하다가 안 돼서 찾아보니까 BFS로 하면 시간초과나는 문제였단다...
+// 그래서 DFS를 이용해서 푸는 걸로 생각을 바꿨지만 내 머릿속의 지우개가 DFS를 다 날려버려서 접근을 못했다...
+// 여기서는 싸이클을 찾고 구성 요소들을 체크하는게 중요했는데 그걸 위해서 새로운 배열을 하나더 만들더라
+// 이건 잘 기억해놔야겠다
+// 전에 풀었던 벽부수기도 이런 느낌이었던 거 같다
+// 그래도 재귀를 마음의 준비도 안 된 상태로 만나니까 약간 당황스러웠다
+// 들어가서 넘어가고 해당되면 돌고 나와서 체크하고...
+// DFS, BFS가 기본이라지만 나한테는 아직 먼 일이다
