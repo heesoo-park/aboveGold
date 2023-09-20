@@ -1,0 +1,125 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+
+public class Main {
+    static int N, M;
+    static int[][] iceberg = new int[301][301];
+    static boolean[][] visited = new boolean[301][301];
+    static boolean[][] isIceberg = new boolean[301][301];
+    static Queue<Point> points = new LinkedList<>();
+    static int[] dy = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < M; j++) {
+                iceberg[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+        int time = 0;
+        while (totalNum() != 0) {
+            int result = 0;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    if (iceberg[i][j] != 0) {
+                        points.add(new Point(i, j));
+                        if (!visited[i][j]) result += solve(i, j);
+                    }
+                }
+            }
+
+            if (result >= 2) {
+                System.out.println(time);
+                System.exit(0);
+            }
+
+            while (!points.isEmpty()) {
+                Point cur = points.poll();
+
+                for (int i = 0; i < 4; i++) {
+                    if (iceberg[cur.r + dy[i]][cur.c + dx[i]] == 0 && !isIceberg[cur.r + dy[i]][cur.c + dx[i]] && iceberg[cur.r][cur.c] > 0) iceberg[cur.r][cur.c]--;
+                }
+            }
+
+            clearArr();
+            time++;
+        }
+
+        System.out.println(0);
+    }
+
+    static int solve(int r, int c) {
+        Queue<Point> q = new LinkedList<>();
+        q.add(new Point(r, c));
+        visited[r][c] = true;
+        isIceberg[r][c] = true;
+
+        while (!q.isEmpty()) {
+            Point cur = q.poll();
+
+            for (int i = 0; i < 4; i++) {
+                int new_r = cur.r + dy[i];
+                int new_c = cur.c + dx[i];
+
+                if (new_r < 1 || new_r >= N - 1 || new_c < 1 || new_c >= M - 1) continue;
+                if (visited[new_r][new_c]) continue;
+
+                if (iceberg[new_r][new_c] != 0) {
+                    visited[new_r][new_c] = true;
+                    isIceberg[new_r][new_c] = true;
+                    q.add(new Point(new_r, new_c));
+                }
+            }
+        }
+        return 1;
+    }
+
+    static int totalNum() {
+        int cnt = 0;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (iceberg[i][j] != 0) cnt++;
+            }
+        }
+
+        return cnt;
+    }
+
+    static void clearArr() {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                isIceberg[i][j] = false;
+                visited[i][j] = false;
+            }
+        }
+    }
+
+    static class Point {
+        int r, c;
+
+        public Point(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+    }
+}
+
+// 분명 전에 풀었던 문제인데 기억이 안 나서 고생했다
+// 배고파서 더 집중력이 흐트러지더라
+// BFS로 빙산이 몇 개로 나눠져있는지 체크하는건 기본 유형과 같으니까 괜찮았다
+// 무엇보다 녹이는게 좀 시간이 걸렸다
+// 그거를 위해서 이 좌표가 빙산좌표가 맞는지 확인하는 2차원 배열을 만들었다
+// 코드가 길어지고 2,3중 반복문을 사용하다보니 시간이 초과될까봐 걱정했지만 괜찮았다
+// O(NM)이었나보다
+// 저번에는 블로그를 보고 풀었던 거 같은데 이번에는 혼자 힘으로 해결해서 다행이다
+// 어디서 출제된 건지 봤더니 초등부 문제... 무서운 초등부
