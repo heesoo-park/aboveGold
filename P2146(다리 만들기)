@@ -1,0 +1,130 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static int N;
+    static int[][] map = new int[101][101];
+    static boolean[][] visited = new boolean[101][101];
+    static boolean[][] bridgeVisited = new boolean[101][101];
+    static int[] dy = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        N = Integer.parseInt(br.readLine());
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < N; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+
+        int idx = 1;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (!visited[i][j] && map[i][j] != 0) indexingLand(i, j, idx++);
+            }
+        }
+
+        int result = Integer.MAX_VALUE;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (map[i][j] != 0) {
+                    result = Math.min(result, solve(i, j, map[i][j]));
+                }
+            }
+        }
+
+        System.out.println(result);
+    }
+
+    static void copyVisited() {
+        for (int i = 0; i < N; i++) {
+            System.arraycopy(visited[i], 0, bridgeVisited[i], 0, N);
+        }
+    }
+
+    static int solve(int r, int c, int start) {
+        copyVisited();
+
+        Queue<bridgePoint> q = new LinkedList<>();
+        q.add(new bridgePoint(r, c, 0));
+
+        while (!q.isEmpty()) {
+            bridgePoint cur = q.poll();
+
+            for (int i = 0; i < 4; i++) {
+                int new_r = cur.r + dy[i];
+                int new_c = cur.c + dx[i];
+
+                if (new_r < 0 || new_r >= N || new_c < 0 || new_c >= N) continue;
+                if (map[new_r][new_c] != 0 && start != map[new_r][new_c]) {
+                    return cur.length;
+                }
+
+                if (bridgeVisited[new_r][new_c]) continue;
+
+                if (map[new_r][new_c] == 0) {
+                    bridgeVisited[new_r][new_c] = true;
+                    q.add(new bridgePoint(new_r, new_c, cur.length + 1));
+                }
+            }
+        }
+
+        return Integer.MAX_VALUE;
+    }
+
+    static void indexingLand(int r, int c, int idx) {
+        Queue<Point> q = new LinkedList<>();
+        q.add(new Point(r, c));
+        visited[r][c] = true;
+        map[r][c] = idx;
+
+        while (!q.isEmpty()) {
+            Point cur = q.poll();
+
+            for (int i = 0; i < 4; i++) {
+                int new_r = cur.r + dy[i];
+                int new_c = cur.c + dx[i];
+
+                if (new_r < 0 || new_r >= N || new_c < 0 || new_c >= N) continue;
+                if (visited[new_r][new_c]) continue;
+
+                if (map[new_r][new_c] != 0) {
+                    visited[new_r][new_c] = true;
+                    map[new_r][new_c] = idx;
+                    q.add(new Point(new_r, new_c));
+                }
+            }
+         }
+    }
+
+    static class Point {
+        int r,c;
+
+        public Point(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+    }
+
+    static class bridgePoint {
+        int r,c,length;
+
+        public bridgePoint(int r, int c, int length) {
+            this.r = r;
+            this.c = c;
+            this.length = length;
+        }
+    }
+}
+
+// 풀어냈다...!!!
+// 점심 먹기 전에 보고 이거 안 되겠는데...? 하다가 index랑 BFS의 최단거리 성질이 머릿속에 팍 떠올라서 점심 먹고 와서 도전
+// 구역 인덱싱은 다른 문제에서 겪어본 거라 쉽게 해결
+// 그 다음이 이제 구역마다의 최단경로 찾는 거였는데 나름 접근한대로 해결이 되었다
+// class에 좌표뿐만 아니라 다리 현재 길이값도 넣어서 진행하니까 편하게 다리 길이를 출력할 수 있었다
+// BFS로 하면 각 값이 최단거리값이라는게 조금 이해되는 듯하다
+// 2중 for문의 향연이 코드에 있어서 통과가능할까 했지만 아주 여유롭게 통과했다!
