@@ -1,0 +1,166 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static int N, M, P;
+    static int[] canMove = new int[10];
+    static char[][] map = new char[1001][1001];
+    static boolean[][] visited = new boolean[1001][1001];
+    static int[] dy = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0};
+    static List<List<Point>> start = new ArrayList<>();
+    static int[] result = new int[10];
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        P = Integer.parseInt(st.nextToken());
+
+        for (int i = 0; i < 10; i++) {
+            start.add(new ArrayList<>());
+        }
+
+        st = new StringTokenizer(br.readLine());
+        int tokens = st.countTokens();
+        for (int i = 0; i < tokens; i++) {
+            canMove[i + 1] = Integer.parseInt(st.nextToken());
+        }
+
+        for (int i = 0; i < N; i++) {
+            String str = br.readLine();
+            for (int j = 0; j < M; j++) {
+                map[i][j] = str.charAt(j);
+                if (map[i][j] != '.' && map[i][j] != '#') start.get(map[i][j] - '0').add(new Point(map[i][j], i, j, 0));
+            }
+        }
+
+        solve();
+
+        for (int i = 1; i <= P; i++) {
+            bw.write(result[i] + " ");
+        }
+        bw.flush();
+        bw.close();
+    }
+
+    static void solve() {
+        Queue<Point> q = new LinkedList<>();
+        while (!checkMap()) {
+            for (int i = 1; i <= P; i++) {
+                int size = start.get(i).size();
+                for (int j = 0; j < size; j++) {
+                    q.add(start.get(i).get(j));
+                }
+                start.get(i).clear();
+
+                while (!q.isEmpty()) {
+                    Point cur = q.poll();
+
+                    if (cur.cnt >= canMove[cur.idx - '0']) {
+                        start.get(i).add(new Point(cur.idx, cur.r, cur.c, 0));
+                        while(!q.isEmpty()) {
+                            Point next = q.poll();
+                            start.get(i).add(new Point(next.idx, next.r, next.c, 0));
+                        }
+                        break;
+                    }
+
+                    for (int j = 0; j < 4; j++) {
+                        int new_r = cur.r + dy[j];
+                        int new_c = cur.c + dx[j];
+
+                        if (new_r < 0 || new_r >= N || new_c < 0 || new_c >= M) continue;
+                        if (visited[new_r][new_c] || map[new_r][new_c] == '#') continue;
+
+                        if (map[new_r][new_c] == '.') {
+                            visited[new_r][new_c] = true;
+                            map[new_r][new_c] = cur.idx;
+                            q.add(new Point(cur.idx, new_r, new_c, cur.cnt + 1));
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                checkNum(map[i][j]);
+            }
+        }
+    }
+
+    static boolean checkMap() {
+        int count = 0;
+        for (int i = 0; i < start.size(); i++) {
+            if (start.get(i).isEmpty()) count++;
+        }
+
+        if (count == 10) return true;
+        else return false;
+    }
+
+    static void checkNum(int n) {
+        switch (n) {
+            case '1':
+                result[1]++;
+                break;
+            case '2':
+                result[2]++;
+                break;
+            case '3':
+                result[3]++;
+                break;
+            case '4':
+                result[4]++;
+                break;
+            case '5':
+                result[5]++;
+                break;
+            case '6':
+                result[6]++;
+                break;
+            case '7':
+                result[7]++;
+                break;
+            case '8':
+                result[8]++;
+                break;
+            case '9':
+                result[9]++;
+                break;
+        }
+    }
+
+    static class Point {
+        char idx;
+        int r, c, cnt;
+
+        public Point(char idx, int r, int c, int cnt) {
+            this.idx = idx;
+            this.r = r;
+            this.c = c;
+            this.cnt = cnt;
+        }
+    }
+}
+
+// 진짜 고려할 것이 계속 하나씩 등장하는 문제였다
+// 뭔가 이 문제를 통해서 디버거랑 친해진 느낌이랄까...?
+// 먼저 BFS자체는 어렵지 않았다
+// 추가적으로 붙여야하는 기능들이 문제였지
+// 제일 먼저는 리스트 안에 리스트 만들기였다
+// 전에 삼성 SDS 교육받을 때 했었는데 까먹고 겨우 알아냈다
+// 그리고 넣으려는데 계속 안 돼서 왜 안돼!!! 하는데 문자값이더라...ㅎㅎ
+// 그거 하고 나서는 BFS를 돌릴 때 어떻게, 얼마나 돌리고 어떻게 데이터들을 넣다 뺄지가 문제였다
+// 순서, 예외처리, 크기 등등 디버거 안 쓰고 그냥 했으면 어디에서 일 터진건지도 모르고 중간에 포기한 채 답지 봤을 거 같다
+// 마지막으로 걸렸던 거는 BFS를 몇 번 돌릴 건지 정하는 조건문이었다
+// 처음에는 확장을 하니까 벽이랑 성 제외한 땅은 다 사라지겠다 싶어서 그 개수를 세서 했는데...
+// 제출할 때도 이 케이스는 없겠지라는 안일한 마음으로 했다가 바로 시간초과 걸렸다
+// 그래서 바꾼 조건은 이제 더 이상 큐에 들어갈 좌표들이 있는지 없는지 확인하는 거였다
+// 이걸로 하니 잘 돌아가고 통과했다
+// 중간중간 좀 더 최적화할 수 있는데가 있는 거 같지만 그건 이후 더 자바에 익숙해지고나서 시도해보겠다
