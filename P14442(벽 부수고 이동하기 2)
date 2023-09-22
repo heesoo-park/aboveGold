@@ -1,0 +1,84 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static int N, M, K;
+    static int[][] map = new int[1001][1001];
+    static boolean[][][] visited = new boolean[1001][1001][11];
+    static int[] dy = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(st.nextToken());
+
+        for (int i = 0; i < N; i++) {
+            String str = br.readLine();
+            for (int j = 0; j < M; j++) {
+                map[i][j] = str.charAt(j) - '0';
+            }
+        }
+
+        solve();
+    }
+
+    static void solve() {
+        Queue<Point> q = new LinkedList<>();
+        q.add(new Point(0, 0, 1, 0));
+        visited[0][0][0] = true;
+
+        while (!q.isEmpty()) {
+            Point cur = q.poll();
+
+            if (cur.r == N - 1 && cur.c == M - 1) {
+                System.out.println(cur.cnt);
+                return;
+            }
+
+            for (int i = 0; i < 4; i++) {
+                int new_r = cur.r + dy[i];
+                int new_c = cur.c + dx[i];
+
+
+                if (new_r < 0 || new_r >= N || new_c < 0 || new_c >= M) continue;
+
+                if (map[new_r][new_c] == 0) {
+                    if (!visited[new_r][new_c][cur.isUsed]) {
+                        q.add(new Point(new_r, new_c, cur.cnt + 1, cur.isUsed));
+                        visited[new_r][new_c][cur.isUsed] = true;
+                    }
+                } else if (map[new_r][new_c] == 1) {
+                    if (cur.isUsed < K && !visited[new_r][new_c][cur.isUsed]) {
+                        q.add(new Point(new_r, new_c, cur.cnt + 1, cur.isUsed + 1));
+                        visited[new_r][new_c][cur.isUsed] = true;
+                    }
+                }
+            }
+        }
+
+        System.out.println(-1);
+    }
+
+    static class Point {
+        int r, c, cnt, isUsed;
+
+        public Point(int r, int c, int cnt, int isUsed) {
+            this.r = r;
+            this.c = c;
+            this.cnt = cnt;
+            this.isUsed = isUsed;
+        }
+    }
+}
+
+// 어째서 벽을 또 부수고 가야하나요...
+// 이렇게 말한 거 치고는 빨리 해결한 문제
+// 기본 틀이 뭔지, 접근 방법이 뭔지, 머릿속에서 좀 이해가 되다 보니까 가능했다
+// 머릿속으로 3차원을 그리면서 진행했다
+// 처음에 계속 map에 접근하는데 이상하게 안 떠서 뭐지 했는데 char형값을 계속 int형으로 받아서 그런거였다
+// 알고나서 매우 뻘쭘...
