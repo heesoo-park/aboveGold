@@ -1,0 +1,110 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static int N, M;
+    static int cnt = 1;
+    static boolean[][] map = new boolean[101][101];
+    static boolean[][] canMove = new boolean[101][101];
+    static boolean[][] visited = new boolean[101][101];
+    static ArrayList<Point>[][] switches;
+    static int[] dy = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+
+        switches = new ArrayList[N + 1][N + 1];
+        for (int i = 0; i <= N; i++) {
+            for (int j = 0; j <= N; j++) {
+                switches[i][j] = new ArrayList<Point>();
+            }
+        }
+
+        for (int i = 0; i < M; i++) {
+            st = new StringTokenizer(br.readLine());
+            int s_r = Integer.parseInt(st.nextToken());
+            int s_c = Integer.parseInt(st.nextToken());
+            int t_r = Integer.parseInt(st.nextToken());
+            int t_c = Integer.parseInt(st.nextToken());
+
+            switches[s_r][s_c].add(new Point(t_r, t_c));
+        }
+
+        solve();
+
+        System.out.println(cnt);
+    }
+
+    static void solve() {
+        Queue<Point> q = new LinkedList<>();
+        q.add(new Point(1, 1));
+        map[1][1] = true;
+        visited[1][1] = true;
+
+        while(!q.isEmpty()) {
+            Point cur = q.poll();
+            int cur_r = cur.r;
+            int cur_c = cur.c;
+
+            for (int i = 0; i < 4; i++) {
+                int new_r = cur_r + dy[i];
+                int new_c = cur_c + dx[i];
+
+                if (new_r < 1 || new_r > N || new_c < 1 || new_c > N) continue;
+
+                canMove[new_r][new_c] = true;
+            }
+
+            for (int i = 0; i < switches[cur_r][cur_c].size(); i++) {
+                Point p = switches[cur_r][cur_c].get(i);
+
+                if (!map[p.r][p.c]) {
+                    map[p.r][p.c] = true;
+                    cnt++;
+                }
+
+                if (canMove[p.r][p.c] && !visited[p.r][p.c]) {
+                    visited[p.r][p.c] = true;
+                    q.add(new Point(p.r, p.c));
+                }
+            }
+
+            for (int i = 0; i < 4; i++) {
+                int new_r = cur_r + dy[i];
+                int new_c = cur_c + dx[i];
+
+                if (new_r < 1 || new_r > N || new_c < 1 || new_c > N) continue;
+                if (visited[new_r][new_c] || !canMove[new_r][new_c] || !map[new_r][new_c]) continue;
+
+                visited[new_r][new_c] = true;
+                q.add(new Point(new_r, new_c));
+            }
+        }
+    }
+
+    static class Point {
+        int r, c;
+        public Point(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+    }
+}
+
+// 무려 3주만에 풀었던 문제
+// 3주동안 무슨 일이 있었나 돌아보면... 제일 큰 건 자격증? 정도네
+// 물론 다른 멘탈적인 이슈로 코딩은 좀 멀리했던 거 같다
+// 그래도 오늘 봤는데 진짜 보자마자 머리가 아프고 쥐가 나서 큰일이었다
+// 전혀 눈에 안 들어오고 시간만 지나가더라
+// 그래서 한숨잤다(?!)
+// 그랬더니 정신은 맑아지더라
+// 하지만 내 굳어버린 머리는 돌아오지 않았기에 블로그를 열심히 보면서 이해를 위해 달렸다
+// 문제에서 원하는 게 불켜진 방의 최대 개수라는 거를 계속 인지하고 보니까 이해가 조금씩 되더라
+// 불켜진 방이면 가고 아니면 못 가니까 불을 먼저 킨다는 게 중요
+// 이렇게 진행하는 느낌은 처음이라 생소함 + 오랜만에 문제 풀이의 여파로 데미지를 많이 입은 문제였다...
