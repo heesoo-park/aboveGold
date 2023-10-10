@@ -1,0 +1,130 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static int h, w, cnt;
+    static char[][] map;
+    static boolean[][] visited;
+    static ArrayList<Point>[] door;
+    static boolean[] key;
+    static int[] dy = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        int T = Integer.parseInt(br.readLine());
+        while (T-- > 0) {
+            cnt = 0;
+            map = new char[102][102];
+            visited = new boolean[102][102];
+            door = new ArrayList[26];
+            key = new boolean[26];
+
+            st = new StringTokenizer(br.readLine());
+            h = Integer.parseInt(st.nextToken());
+            w = Integer.parseInt(st.nextToken());
+
+            for (int i = 0; i < 26; i++) {
+                door[i] = new ArrayList<>();
+            }
+
+            for (int i = 0; i < 102; i++) {
+                for (int j = 0; j < 102; j++) {
+                    map[i][j] = '.';
+                }
+            }
+
+            for (int i = 1; i <= h; i++) {
+                String str = br.readLine();
+                for (int j = 1; j <= w; j++) {
+                    map[i][j] = str.charAt(j - 1);
+                }
+            }
+
+            String keys = br.readLine();
+            if (!keys.equals("0")) {
+                for (int i = 0; i < keys.length(); i++) {
+                    int k = keys.charAt(i) - 'a';
+                    key[k] = true;
+                }
+            }
+
+            solve();
+            System.out.println(cnt);
+        }
+    }
+
+    static void solve() {
+        Queue<Point> q = new LinkedList<>();
+        q.add(new Point(0, 0));
+        visited[0][0] = true;
+
+        while (!q.isEmpty()) {
+            Point cur = q.poll();
+
+            for (int i = 0; i < 4; i++) {
+                int new_r = cur.r + dy[i];
+                int new_c = cur.c + dx[i];
+
+                if (new_r < 0 || new_r >= h + 2 || new_c < 0 || new_c >= w + 2) continue;
+
+                if (!visited[new_r][new_c] && map[new_r][new_c] != '*') {
+                    if (map[new_r][new_c] - 'A' >= 0 && map[new_r][new_c] - 'A' <= 25) {
+                        if (key[map[new_r][new_c] - 'A']) {
+                            map[new_r][new_c] = '.';
+                            q.add(new Point(new_r, new_c));
+                            visited[new_r][new_c] = true;
+                        }
+                        else {
+                            door[map[new_r][new_c] - 'A'].add(new Point(new_r, new_c));
+                        }
+                    }
+                    else if (map[new_r][new_c] - 'a' >= 0 && map[new_r][new_c] - 'a' <= 25) {
+                        key[map[new_r][new_c] - 'a'] = true;
+                        visited[new_r][new_c] = true;
+                        q.add(new Point(new_r, new_c));
+                    }
+                    else if (map[new_r][new_c] == '.') {
+                        visited[new_r][new_c] = true;
+                        q.add(new Point(new_r, new_c));
+                    }
+                    else if (map[new_r][new_c] == '$') {
+                        cnt++;
+                        visited[new_r][new_c] = true;
+                        q.add(new Point(new_r, new_c));
+                    }
+
+                    for (int j = 0; j <= 25; j++) {
+                        if (door[j].size() != 0 && key[j]) {
+                            for (int k = 0; k < door[j].size(); k++) {
+                                Point temp = door[j].get(k);
+                                map[temp.r][temp.c] = '.';
+                                visited[temp.r][temp.c] = true;
+                                q.add(temp);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    static class Point {
+        int r,c;
+
+        public Point(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+    }
+}
+
+// ...하하
+// 이전에 풀었던 불켜기의 느낌이 있긴 했는데 영... 포기하고 블로그 확인했는데
+// 그것도 쉽지 않았다
+// 그래도 여러번 보면서 이해하는 중이다
+// 너무 많은 배열과 리스트와 케이스와 비교대상... 어질어질했다
+// 역시 골드는 나에게 아직 쉽지않다
+// 이런 류는 약간 여분의 배열을 만들어서 나중에 다시 검사하는 식의 bfs라고 생각하면 될 거 같다
